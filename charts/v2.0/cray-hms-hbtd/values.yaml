@@ -19,6 +19,20 @@ cray-service:
   nameOverride: "cray-hbtd"
   fullnameOverride: "cray-hbtd"
   replicaCount: 3
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - topologyKey: kubernetes.io/hostname
+        labelSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - cray-hbtd
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 50%
+    type: RollingUpdate
   etcdCluster:
     enabled: true
     pvc:
