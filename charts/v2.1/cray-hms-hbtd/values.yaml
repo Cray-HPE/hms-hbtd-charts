@@ -9,10 +9,16 @@
 
 global:
   appVersion: 1.16.0
+  testVersion: 1.16.0
 
 image:
   repository: artifactory.algol60.net/csm-docker/stable/cray-hbtd
   pullPolicy: IfNotPresent
+
+tests:
+  image:
+    repository: artifactory.algol60.net/csm-docker/stable/cray-hbtd-test
+    pullPolicy: IfNotPresent
 
 cray-service:
   type: "Deployment"
