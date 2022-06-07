@@ -1,6 +1,6 @@
 apiVersion: v2
 name: "cray-hms-hbtd"
-version: 2.1.0
+version: 2.1.1
 description: "Kubernetes resources for cray-hms-hbtd"
 home: "https://github.com/Cray-HPE/hms-hbtd-charts"
 sources:
