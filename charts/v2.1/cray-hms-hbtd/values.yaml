@@ -8,8 +8,10 @@
 #   pullPolicy: "" (default = "IfNotPresent")
 
 global:
-  appVersion: 1.16.0
-  testVersion: 1.16.0
+  #appVersion: 1.16.0
+  appVersion: 1.17.0-20220616162332.b619b8f
+  #testVersion: 1.16.0
+  testVersion: 1.17.0-20220616162339.b619b8f
 
 image:
   repository: artifactory.algol60.net/csm-docker/stable/cray-hbtd
@@ -18,7 +20,7 @@ image:
 tests:
   image:
     repository: artifactory.algol60.net/csm-docker/stable/cray-hbtd-test
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
 
 cray-service:
   type: "Deployment"
