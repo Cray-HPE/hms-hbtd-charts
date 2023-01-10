@@ -1,0 +1,110 @@
+# Please refer to https://stash.us.cray.com/projects/CLOUD/repos/cray-charts/browse/stable/cray-service/values.yaml?at=refs%2Fheads%2Fmaster
+# for more info on values you can set/override
+# Note that cray-service.containers[*].image and cray-service.initContainers[*].image map values are one of the only structures that
+# differ from the standard kubernetes container spec:
+# image:
+#   repository: ""
+#   tag: "" (default = "latest")
+#   pullPolicy: "" (default = "IfNotPresent")
+
+global:
+  appVersion: 1.19.0
+  testVersion: 1.19.0
+
+image:
+  repository: artifactory.algol60.net/csm-docker/stable/cray-hbtd
+  pullPolicy: IfNotPresent
+
+tests:
+  image:
+    repository: artifactory.algol60.net/csm-docker/stable/cray-hbtd-test
+    pullPolicy: IfNotPresent
+
+cray-etcd-base:
+  nameOverride: "cray-hbtd"
+  fullnameOverride: "cray-hbtd"
+  etcd:
+    enabled: true
+    fullnameOverride: "cray-hbtd-etcd"
+    nameOverride: "cray-hbtd-etcd"
+    persistence:
+      size: 8Gi
+    extraEnvVars:
+      - name: ETCD_HEARTBEAT_INTERVAL
+        value: "4200"
+      - name: ETCD_ELECTION_TIMEOUT
+        value: "21000"
+      - name: ETCD_MAX_SNAPSHOTS
+        value: "1"
+      - name: ETCD_SNAPSHOT_COUNT
+        value: "5000000"
+    autoCompactionMode: revision
+    autoCompactionRetention: "100000"
+    resources:
+      limits:
+        cpu: 4
+        memory: 8Gi
+      requests:
+        cpu: 10m
+        memory: 64Mi
+cray-service:
+  type: "Deployment"
+  nameOverride: "cray-hbtd"
+  fullnameOverride: "cray-hbtd"
+  replicaCount: 3
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - topologyKey: kubernetes.io/hostname
+        labelSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - cray-hbtd
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 50%
+    type: RollingUpdate
+  etcdWaitContainer: true
+
+  containers:
+    cray-hbtd:
+      name: "cray-hbtd"
+      image:
+        repository: "artifactory.algol60.net/csm-docker/stable/cray-hbtd"
+      ports:
+        - name: http
+          containerPort: 28500
+      env:
+        - name: SM_URL
+          value: "http://cray-smd/hsm/v2"
+        - name: WARNTIME
+          value: "35"
+        - name: ERRTIME
+          value: "60"
+      livenessProbe:
+        httpGet:
+          port: 28500
+          path: /hmi/v1/liveness
+        initialDelaySeconds: 10
+        periodSeconds: 30
+      readinessProbe:
+        httpGet:
+          port: 28500
+          path: /hmi/v1/readiness
+        initialDelaySeconds: 15
+        periodSeconds: 30
+      resources:
+        limits:
+          cpu: "4"
+          memory: 2Gi
+        requests:
+          cpu: 64m
+          memory: 512Mi
+  podAnnotations:
+    traffic.sidecar.istio.io/excludeOutboundPorts: 8082,9092,2181,2379,2380
+  ingress:
+    enabled: true
+    uri: " "
+    prefix: "/apis/hbtd"
