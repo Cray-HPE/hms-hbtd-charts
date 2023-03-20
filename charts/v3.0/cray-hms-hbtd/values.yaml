@@ -25,8 +25,8 @@ cray-etcd-base:
   fullnameOverride: "cray-hbtd"
   etcd:
     enabled: true
-    fullnameOverride: "cray-hbtd-etcd"
-    nameOverride: "cray-hbtd-etcd"
+    fullnameOverride: "cray-hbtd-bitnami-etcd"
+    nameOverride: "cray-hbtd-bitnami-etcd"
     persistence:
       size: 8Gi
     extraEnvVars:
@@ -36,8 +36,12 @@ cray-etcd-base:
         value: "21000"
       - name: ETCD_MAX_SNAPSHOTS
         value: "1"
+      - name: ETCD_QUOTA_BACKEND_BYTES
+        value: "10737418240"
       - name: ETCD_SNAPSHOT_COUNT
         value: "5000000"
+      - name: ETCD_SNAPSHOT_HISTORY_LIMIT
+        value: "24"
     autoCompactionMode: revision
     autoCompactionRetention: "100000"
     resources:
