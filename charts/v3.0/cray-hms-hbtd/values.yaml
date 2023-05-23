@@ -29,6 +29,12 @@ cray-etcd-base:
     nameOverride: "cray-hbtd-bitnami-etcd"
     persistence:
       size: 8Gi
+    disasterRecovery:
+      cronjob:
+        snapshotsDir: "/snapshots/cray-hbtd-bitnami-etcd"
+        schedule: "0 */1 * * *"
+        historyLimit: 1
+        snapshotHistoryLimit: 24
     extraEnvVars:
       - name: ETCD_HEARTBEAT_INTERVAL
         value: "4200"
